@@ -1,18 +1,41 @@
+<div align="center">
+
 # abg-cloud
 
-**abg-cloud 是一款速度超凡的异步响应式RPC框架**
-## 功能特点
- - 仅支持异步调用, Service 接口所有 public 方法返回值都必须为 CompletableFuture
- - 配置定义在 Service 接口上, 而非实现类上, 方法实现者和调用者都不需要引入奇奇怪怪的注解
- - 支持 REST 调用
- - 支持失败回退, 支持熔断, 支持心跳, 支持自动重连
- - 支持自定义 服务注册 负载均衡 序列化
- - 支持 Filter, 可通过该机制实现 Tracing 限流限速 黑白名单 等功能
- - 支持 spring boot
+**一款异步响应式 RPC 框架**
 
-## Quick Start
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue?style=flat-square)](LICENSE)
+[![Stars](https://img.shields.io/github/stars/annabergite/abg-cloud?style=flat-square&color=FBCA04)](https://github.com/annabergite/abg-cloud/stargazers)
+[![Java](https://img.shields.io/badge/Java-ED8B00?style=flat-square&logo=openjdk&logoColor=white)](https://www.java.com/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-6DB33F?style=flat-square&logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
 
-Maven依赖: 
+</div>
+
+## ✨ 功能特点
+
+- ⚡ **纯异步**：仅支持异步调用，Service 接口所有 `public` 方法返回值都必须为 `CompletableFuture`
+- 🎯 **接口即配置**：配置定义在 Service 接口上而非实现类上，实现者和调用者都无需引入额外注解
+- 🌐 支持 REST 调用
+- 🛡️ 支持失败回退、熔断、心跳、自动重连
+- 🔌 支持自定义服务注册、负载均衡、序列化
+- 🔗 支持 Filter 机制，可基于此实现 Tracing、限流限速、黑白名单等功能
+- 🧩 支持 Spring Boot
+
+## 🏗️ 架构（简化）
+
+```mermaid
+graph TB
+    C[Client 调用方] -->|异步 CompletableFuture| F[Filter 链]
+    F --> LB[负载均衡]
+    LB -->|RPC / REST| S[Server 服务端]
+    R[(注册中心 ZK)] <--> LB
+    S --> R
+```
+
+## 🚀 Quick Start
+
+Maven 依赖：
+
 ```xml
 <!-- 必须引入 -->
 <dependency>
@@ -50,20 +73,22 @@ Maven依赖:
 </dependency>
 ```
 
-1.定义接口
+**1. 定义接口**
+
 ```java
 @AbgService(version = "1.0.0")
 public interface HelloService {
 
 	@AbgService(version = "1.0.0", rest = "hello")
 	default CompletableFuture<String> hello(String msg) {
-		// default实现会自动注册为失败回退方法，当远程调用失败时执行
+		// default 实现会自动注册为失败回退方法，当远程调用失败时执行
 		return CompletableFuture.completedFuture("error");
 	}
 }
 ```
 
-2.服务端实现接口
+**2. 服务端实现接口**
+
 ```java
 @Component
 public class HelloServiceImpl implements HelloService {
@@ -74,9 +99,10 @@ public class HelloServiceImpl implements HelloService {
 }
 ```
 
-3.配置abg-server.conf, 声明 服务器地址 序列化协议 注册地址 等信息
+**3. 配置 `abg-server.conf`**，声明服务器地址、序列化协议、注册地址等信息。
 
-4.服务端启动
+**4. 服务端启动**
+
 ```java
 @SpringBootApplication(scanBasePackages = { "com.hello" })
 @EnableabgServer
@@ -86,9 +112,9 @@ public class TruboServerBootTest {
 	}
 }
 ```
-----------
 
-5.客户端调用
+**5. 客户端调用**
+
 ```java
 @Component
 public class HelloReferTest {
@@ -102,9 +128,10 @@ public class HelloReferTest {
 }
 ```
 
-6.配置abg-client.conf, 声明 服务器地址 序列化协议 注册地址 等信息
+**6. 配置 `abg-client.conf`**，声明服务器地址、序列化协议、注册地址等信息。
 
-7.客户端启动
+**7. 客户端启动**
+
 ```java
 @SpringBootApplication(scanBasePackages = { "com.hello" })
 @EnableabgClient
@@ -115,6 +142,11 @@ public class HelloBootTest {
 }
 ```
 
-## abg 技术原理
-- [如何编写高性能的 RPC 框架](https://www.jianshu.com/p/7182b8751e75) 
+## 📖 技术原理
+
+- [如何编写高性能的 RPC 框架](https://www.jianshu.com/p/7182b8751e75)
 - [RPC 异步响应式调用](https://www.jianshu.com/p/1e406ffa5f90)
+
+## 📄 License
+
+[Apache-2.0](LICENSE) © annabergite
